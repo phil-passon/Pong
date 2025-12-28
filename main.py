@@ -54,6 +54,17 @@ def main():
                 if event.key == pygame.K_ESCAPE:
                     running = False
 
+            if game_over and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
+                if event.key == pygame.K_r:
+                    player1_score = 0
+                    player2_score = 0
+                    ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                    ball_accel_x = random.choice([-4, 4])
+                    ball_accel_y = random.choice([-4, 4])
+                    game_over = False
+
         if not game_over:
             # Holding the key moves the paddle
             keys = pygame.key.get_pressed()
@@ -91,7 +102,7 @@ def main():
                 ball_accel_x *= -1
 
             # Check for a winner
-            if player1_score >= 10 or player2_score >= 10:
+            if player1_score >= 1 or player2_score >= 1:
                 game_over = True
 
         # Drawing Logic
@@ -108,7 +119,7 @@ def main():
             pygame.draw.rect(screen, COLOR_WHITE, paddle_2_rect)
 
             # Draw Win Text
-            if player1_score >= 10:
+            if player1_score >= 1:
                 win_text = "Player 1 Wins!"
             else:
                 win_text = "Player 2 Wins!"
@@ -120,6 +131,11 @@ def main():
             exit_text = "Press ESCAPE to Exit"
             exit_surface = info_font.render(exit_text, True, COLOR_WHITE)
             exit_rect = exit_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 60))
+            screen.blit(exit_surface, exit_rect)
+
+            exit_text = "Press R to Restart"
+            exit_surface = info_font.render(exit_text, True, COLOR_WHITE)
+            exit_rect = exit_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
             screen.blit(exit_surface, exit_rect)
 
         pygame.display.flip()
