@@ -117,7 +117,7 @@ def main():
             win_rect = win_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             screen.blit(win_surface, win_rect)
 
-            exit_text = "Press ENTER to Escape"
+            exit_text = "Press ESCAPE to Exit"
             exit_surface = info_font.render(exit_text, True, COLOR_WHITE)
             exit_rect = exit_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 60))
             screen.blit(exit_surface, exit_rect)
