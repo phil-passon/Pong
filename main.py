@@ -32,9 +32,16 @@ def draw_score(screen, font):
 def main():
     global ball_accel_x, ball_accel_y, player1_score, player2_score
     pygame.init()
+    pygame.mixer.init()
+
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Pong")
     clock = pygame.time.Clock()
+
+    # Sound variables
+    bounce_sound = pygame.mixer.Sound('bounce.wav')
+    score_sound = pygame.mixer.Sound('+point.wav')
+    win_sound = pygame.mixer.Sound('win sound.wav')
 
     # Fonts:
     game_font = pygame.font.SysFont("Consolas", 60)
@@ -49,11 +56,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-            # Check for Enter key only when the game is over
-            if game_over and event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_ESCAPE:
-                    running = False
-
+            # Controls for when the game is over
             if game_over and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
@@ -84,31 +87,44 @@ def main():
             ball_rect.x += ball_accel_x
             ball_rect.y += ball_accel_y
 
+            # Wall Bouncing
             if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
                 ball_accel_y *= -1
 
+            # Paddle Bouncing
             if ball_rect.colliderect(paddle_1_rect) or ball_rect.colliderect(paddle_2_rect):
                 ball_accel_x *= -1.1  # Increases speed by 10%
                 ball_accel_y *= 1.1
+                bounce_sound.play()
 
-            # Scoring
+            # Scoring Logic
             if ball_rect.left <= 0:
                 player2_score += 1
                 ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-                ball_accel_x *= -1
+                ball_accel_x = random.choice([-4, 4])
+                ball_accel_y = random.choice([-4, 4])
+                # Only play score sound if no one won yet
+                if player2_score < 2:
+                    score_sound.play()
 
             if ball_rect.right >= SCREEN_WIDTH:
                 player1_score += 1
                 ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
-                ball_accel_x *= -1
+                ball_accel_x = random.choice([-4, 4])
+                ball_accel_y = random.choice([-4, 4])
+                # Only play score sound if no one won yet
+                if player1_score < 2:
+                    score_sound.play()
 
             # Check for a winner
-            if player1_score >= 1 or player2_score >= 1:
+            if player1_score >= 10 or player2_score >= 10:
                 game_over = True
+                win_sound.play() # Only victory sound plays for final point
 
         # Drawing Logic
         screen.fill(COLOR_BLACK)
 
+        # Translucent center line
         line_surface = pygame.Surface((4, SCREEN_HEIGHT), pygame.SRCALPHA)
         for y in range(0, SCREEN_HEIGHT, 40):
             pygame.draw.rect(line_surface, (255, 255, 255, 60), (0, y, 4, 20))
@@ -126,7 +142,7 @@ def main():
             pygame.draw.rect(screen, COLOR_WHITE, paddle_2_rect)
 
             # Draw Win Text
-            if player1_score >= 1:
+            if player1_score >= 10:
                 win_text = "Player 1 Wins!"
             else:
                 win_text = "Player 2 Wins!"
@@ -140,10 +156,10 @@ def main():
             exit_rect = exit_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 60))
             screen.blit(exit_surface, exit_rect)
 
-            exit_text = "Press R to Restart"
-            exit_surface = info_font.render(exit_text, True, COLOR_WHITE)
-            exit_rect = exit_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
-            screen.blit(exit_surface, exit_rect)
+            restart_text = "Press R to Restart"
+            restart_surface = info_font.render(restart_text, True, COLOR_WHITE)
+            restart_rect = restart_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100))
+            screen.blit(restart_surface, restart_rect)
 
         pygame.display.flip()
         clock.tick(60)
