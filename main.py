@@ -88,7 +88,8 @@ def main():
                 ball_accel_y *= -1
 
             if ball_rect.colliderect(paddle_1_rect) or ball_rect.colliderect(paddle_2_rect):
-                ball_accel_x *= -1
+                ball_accel_x *= -1.1  # Increases speed by 10%
+                ball_accel_y *= 1.1
 
             # Scoring
             if ball_rect.left <= 0:
@@ -107,6 +108,12 @@ def main():
 
         # Drawing Logic
         screen.fill(COLOR_BLACK)
+
+        line_surface = pygame.Surface((4, SCREEN_HEIGHT), pygame.SRCALPHA)
+        for y in range(0, SCREEN_HEIGHT, 40):
+            pygame.draw.rect(line_surface, (255, 255, 255, 60), (0, y, 4, 20))
+        screen.blit(line_surface, (SCREEN_WIDTH // 2 - 2, 0))
+
         draw_score(screen, game_font)
 
         # Only draw paddles and ball if the game is still going
