@@ -17,13 +17,27 @@ paddle_speed = 7
 ball_accel_x = random.choice([-4, 4])
 ball_accel_y = random.choice([-4, 4])
 
+# Score variables
+player1_score = 0
+player2_score = 0
+
+
+def draw_score(screen, font):
+    score_text = f"{player1_score}   {player2_score}"
+    score_surface = font.render(score_text, True, COLOR_WHITE)
+    score_rect = score_surface.get_rect(center=(SCREEN_WIDTH // 2, 50))
+    screen.blit(score_surface, score_rect)
+
 
 def main():
-    global ball_accel_x, ball_accel_y
+    global ball_accel_x, ball_accel_y, player1_score, player2_score
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     pygame.display.set_caption("Pong")
     clock = pygame.time.Clock()
+
+    # Score font
+    game_font = pygame.font.SysFont("Consolas", 60)
 
     running = True
     while running:
@@ -32,7 +46,7 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-        # holding the key moves the paddle
+        # Holding the key moves the paddle
         keys = pygame.key.get_pressed()
         # Player 1 (W/S Keys)
         if keys[pygame.K_w] and paddle_1_rect.top > 0:
@@ -59,11 +73,18 @@ def main():
             ball_accel_x *= -1
 
         # Scoring
-        if ball_rect.left <= 0 or ball_rect.right >= SCREEN_WIDTH:
+        if ball_rect.left <= 0:
+            player2_score += 1
+            ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+            ball_accel_x *= -1
+
+        if ball_rect.right >= SCREEN_WIDTH:
+            player1_score += 1
             ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
             ball_accel_x *= -1
 
         screen.fill(COLOR_BLACK)
+        draw_score(screen, game_font)
 
         pygame.draw.rect(screen, COLOR_WHITE, paddle_1_rect)
         pygame.draw.rect(screen, COLOR_WHITE, paddle_2_rect)
