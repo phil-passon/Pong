@@ -25,6 +25,8 @@ def reset_game():
     global player1_score, player2_score, ball_accel_x, ball_accel_y
     player1_score = 0
     player2_score = 0
+    paddle_1_rect.height = 100
+    paddle_2_rect.height = 100
     ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
     ball_accel_x = random.choice([-4, 4])
     ball_accel_y = random.choice([-4, 4])
@@ -63,24 +65,21 @@ def main():
     running = True
     game_over = False
     game_active = False
-    paused = False  # New state variable for pausing
+    paused = False
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
-            # Toggle Pause with 'P'
-            if game_active and not game_over and event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_p:
-                    paused = not paused
-
-            # Start Screen Controls
             if not game_active and not game_over and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     game_active = True
 
-            # Win Screen Controls
+            if game_active and not game_over and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = not paused
+
             if game_over and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
@@ -89,59 +88,64 @@ def main():
                     game_over = False
                     game_active = False
 
-        # Only update physics if active and NOT paused
         if game_active and not game_over and not paused:
-            # Paddle Movement
             keys = pygame.key.get_pressed()
             if keys[pygame.K_w] and paddle_1_rect.top > 0: paddle_1_rect.y -= paddle_speed
             if keys[pygame.K_s] and paddle_1_rect.bottom < SCREEN_HEIGHT: paddle_1_rect.y += paddle_speed
             if keys[pygame.K_UP] and paddle_2_rect.top > 0: paddle_2_rect.y -= paddle_speed
             if keys[pygame.K_DOWN] and paddle_2_rect.bottom < SCREEN_HEIGHT: paddle_2_rect.y += paddle_speed
 
-            # Ball Physics
             ball_rect.x += ball_accel_x
             ball_rect.y += ball_accel_y
 
+            # Wall Bounce
             if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
                 ball_accel_y *= -1
 
+            # Paddle Collision Logic
             if ball_rect.colliderect(paddle_1_rect) or ball_rect.colliderect(paddle_2_rect):
                 ball_accel_x *= -1.1
-                ball_accel_y *= 1.1
                 bounce_sound.play()
+                paddle = paddle_1_rect if ball_rect.colliderect(paddle_1_rect) else paddle_2_rect
+                diff = (ball_rect.centery - paddle.centery) / (paddle.height / 2)
+                ball_accel_y += diff * 5
 
             # Scoring Logic
             if ball_rect.left <= 0:
                 player2_score += 1
                 if player2_score < WINNING_SCORE: score_sound.play()
+
+                if paddle_2_rect.height > 40:
+                    paddle_2_rect.height -= 10
+
                 ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                 ball_accel_x, ball_accel_y = random.choice([-4, 4]), random.choice([-4, 4])
-                game_active = False
 
             if ball_rect.right >= SCREEN_WIDTH:
                 player1_score += 1
                 if player1_score < WINNING_SCORE: score_sound.play()
+
+                if paddle_1_rect.height > 40:
+                    paddle_1_rect.height -= 10
+
                 ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                 ball_accel_x, ball_accel_y = random.choice([-4, 4]), random.choice([-4, 4])
-                game_active = False
 
             if player1_score >= WINNING_SCORE or player2_score >= WINNING_SCORE:
                 game_over = True
                 win_sound.play()
 
-        # --- Drawing ---
+        # Drawing
         screen.fill(COLOR_BLACK)
         draw_center_line(screen)
-        draw_score(screen, font=game_font)
+        draw_score(screen, game_font)
 
-        # Draw Paddles
         pygame.draw.rect(screen, COLOR_WHITE, paddle_1_rect)
         pygame.draw.rect(screen, COLOR_WHITE, paddle_2_rect)
 
         if not game_over:
             pygame.draw.rect(screen, COLOR_WHITE, ball_rect)
 
-            # Draw UI messages based on state
             if not game_active:
                 start_surf = info_font.render("Press SPACE to Start", True, COLOR_WHITE)
                 screen.blit(start_surf, start_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)))
@@ -149,7 +153,6 @@ def main():
                 pause_surf = info_font.render("PAUSED - Press P to Resume", True, COLOR_WHITE)
                 screen.blit(pause_surf, pause_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
         else:
-            # Win UI
             msg = "Player 1 Wins!" if player1_score >= WINNING_SCORE else "Player 2 Wins!"
             win_surf = game_font.render(msg, True, COLOR_WHITE)
             screen.blit(win_surf, win_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
