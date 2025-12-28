@@ -36,8 +36,9 @@ def main():
     pygame.display.set_caption("Pong")
     clock = pygame.time.Clock()
 
-    # Score font
+    # Fonts:
     game_font = pygame.font.SysFont("Consolas", 60)
+    info_font = pygame.font.SysFont("Consolas", 30)
 
     running = True
     game_over = False
@@ -47,6 +48,11 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+
+            # Check for Enter key only when the game is over
+            if game_over and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
 
         if not game_over:
             # Holding the key moves the paddle
@@ -67,11 +73,9 @@ def main():
             ball_rect.x += ball_accel_x
             ball_rect.y += ball_accel_y
 
-            # Bounce off top and bottom walls
             if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
                 ball_accel_y *= -1
 
-            # Bounce off paddles
             if ball_rect.colliderect(paddle_1_rect) or ball_rect.colliderect(paddle_2_rect):
                 ball_accel_x *= -1
 
@@ -103,6 +107,7 @@ def main():
             pygame.draw.rect(screen, COLOR_WHITE, paddle_1_rect)
             pygame.draw.rect(screen, COLOR_WHITE, paddle_2_rect)
 
+            # Draw Win Text
             if player1_score >= 10:
                 win_text = "Player 1 Wins!"
             else:
@@ -111,6 +116,11 @@ def main():
             win_surface = game_font.render(win_text, True, COLOR_WHITE)
             win_rect = win_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
             screen.blit(win_surface, win_rect)
+
+            exit_text = "Press ENTER to Escape"
+            exit_surface = info_font.render(exit_text, True, COLOR_WHITE)
+            exit_rect = exit_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 60))
+            screen.blit(exit_surface, exit_rect)
 
         pygame.display.flip()
         clock.tick(60)
