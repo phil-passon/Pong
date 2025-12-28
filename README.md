@@ -28,4 +28,4 @@ You will need Python 3 and the Pygame library installed on your machine.
 - Mac Optimized: Includes a frame rate clock and proper display flipping to ensure stability on macOS.
 - Collision Detection: Utilizes Pygame's Rect system for precise paddle and wall bounces.
 - Auto-Reset: The ball resets to the center automatically after a point is scored.
-- Scoreboard: *WIP*
+- Scoreboard: The Scoreboard updates after a point is scored. After one Player achieves ten points a Win message will be displayed.
