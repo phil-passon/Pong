@@ -62,20 +62,35 @@ def main():
 
     running = True
     game_over = False
+    game_active = False
+    paused = False  # New state variable for pausing
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
 
+            # Toggle Pause with 'P'
+            if game_active and not game_over and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_p:
+                    paused = not paused
+
+            # Start Screen Controls
+            if not game_active and not game_over and event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    game_active = True
+
+            # Win Screen Controls
             if game_over and event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     running = False
                 if event.key == pygame.K_r:
                     reset_game()
                     game_over = False
+                    game_active = False
 
-        if not game_over:
+        # Only update physics if active and NOT paused
+        if game_active and not game_over and not paused:
             # Paddle Movement
             keys = pygame.key.get_pressed()
             if keys[pygame.K_w] and paddle_1_rect.top > 0: paddle_1_rect.y -= paddle_speed
@@ -101,12 +116,14 @@ def main():
                 if player2_score < WINNING_SCORE: score_sound.play()
                 ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                 ball_accel_x, ball_accel_y = random.choice([-4, 4]), random.choice([-4, 4])
+                game_active = False
 
             if ball_rect.right >= SCREEN_WIDTH:
                 player1_score += 1
                 if player1_score < WINNING_SCORE: score_sound.play()
                 ball_rect.center = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
                 ball_accel_x, ball_accel_y = random.choice([-4, 4]), random.choice([-4, 4])
+                game_active = False
 
             if player1_score >= WINNING_SCORE or player2_score >= WINNING_SCORE:
                 game_over = True
@@ -115,7 +132,7 @@ def main():
         # --- Drawing ---
         screen.fill(COLOR_BLACK)
         draw_center_line(screen)
-        draw_score(screen, game_font)
+        draw_score(screen, font=game_font)
 
         # Draw Paddles
         pygame.draw.rect(screen, COLOR_WHITE, paddle_1_rect)
@@ -123,6 +140,14 @@ def main():
 
         if not game_over:
             pygame.draw.rect(screen, COLOR_WHITE, ball_rect)
+
+            # Draw UI messages based on state
+            if not game_active:
+                start_surf = info_font.render("Press SPACE to Start", True, COLOR_WHITE)
+                screen.blit(start_surf, start_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 100)))
+            elif paused:
+                pause_surf = info_font.render("PAUSED - Press P to Resume", True, COLOR_WHITE)
+                screen.blit(pause_surf, pause_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
         else:
             # Win UI
             msg = "Player 1 Wins!" if player1_score >= WINNING_SCORE else "Player 2 Wins!"
