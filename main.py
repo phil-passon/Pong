@@ -38,7 +38,7 @@ def draw_ui(screen, game_font, info_font, game_active, paused, game_over):
         win_surf = game_font.render(msg, True, COLOR_WHITE)
         screen.blit(win_surf, win_surf.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)))
 
-        r_text = info_font.render("Press R to Restart | ESC to Exit", True, COLOR_WHITE)
+        r_text = info_font.render("Press R to Restart or ESC to Exit", True, COLOR_WHITE)
         screen.blit(r_text, r_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 80)))
     elif not game_active:
         txt = info_font.render("Press SPACE to Start", True, COLOR_WHITE)
