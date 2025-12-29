@@ -10,17 +10,30 @@ The project is split into modules for better maintainability and organized asset
 
 - ``sounds/:`` Dedicated folder for audio assets (.wav format for macOS compatibility).
 ## Getting Started
-Prerequisites
-Ensure you have Python 3 and the Pygame library installed:
+### Prerequisites
+Ensure you have **Python 3** installed on your machine.
 
+### Clone the Repository
 ```bash
-    pip install pygame
+  git clone https://github.com/phil-passon/Pong.git
 ```
-## How to Run
-Ensure your sound files are located inside the sounds/ directory.
-Run the game from the root folder:
+### Navigate into the project folder
 ```bash
-    python main.py
+  cd Pong
+```
+### Install Pygame via pip
+```bash
+  pip install pygame
+```
+### Setup & Assets
+Ensure your audio files are organized in the `sounds/` directory:
+- `sounds/bounce.wav`
+- `sounds/+point.wav`
+- `sounds/win sound.wav`
+
+### How to Run
+```bash
+  python main.py
 ```
 ## 🎮 Controls
 | Action | Player 1 (Left) | Player 2 (Right) |
