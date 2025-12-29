@@ -89,7 +89,9 @@ def main():
             ball_rect.y += ball_accel_y
 
             # Logic
-            if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT: ball_accel_y *= -1
+            if ball_rect.top <= 0 or ball_rect.bottom >= SCREEN_HEIGHT:
+                ball_accel_y *= -1
+                bounce_snd.play()
 
             if ball_rect.colliderect(paddle_1_rect) or ball_rect.colliderect(paddle_2_rect):
                 ball_accel_x *= -1.1
